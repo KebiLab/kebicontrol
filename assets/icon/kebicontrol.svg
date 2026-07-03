@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- KebiControl icon. Minimalism by KebiLab -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="k" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="url(#bg)"/>
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="none" stroke="#334155" stroke-width="2"/>
+  <!-- Voice waveform dot -->
+  <circle cx="64" cy="128" r="6" fill="url(#k)"/>
+  <circle cx="84" cy="128" r="10" fill="url(#k)" opacity="0.7"/>
+  <circle cx="104" cy="128" r="4" fill="url(#k)" opacity="0.4"/>
+  <!-- Letter K -->
+  <path d="M 138 64 L 162 64 L 162 118 L 210 64 L 240 64 L 188 124 L 244 192 L 212 192 L 170 142 L 162 152 L 162 192 L 138 192 Z"
+        fill="url(#k)"/>
+</svg>

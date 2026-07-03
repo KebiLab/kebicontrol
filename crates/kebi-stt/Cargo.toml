@@ -1,0 +1,23 @@
+[package]
+name = "kebi-stt"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Speech-to-text engines (Vosk local + Whisper API). Made by KebiLab"
+
+[dependencies]
+vosk.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+hound = "3.5"
+async-trait.workspace = true
+directories.workspace = true
+dirs.workspace = true
+futures.workspace = true

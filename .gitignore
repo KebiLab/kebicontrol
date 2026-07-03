@@ -1,0 +1,35 @@
+# --- Rust / Cargo ---
+/target
+**/*.rs.bk
+Cargo.lock.bak
+/.idea
+/.vscode
+**/.DS_Store
+
+# --- Build artifacts ---
+/dist
+/release
+*.exe
+*.pdb
+*.dll
+
+# --- Vosk models (large) ---
+/assets/models/
+/models/
+
+# --- Config / secrets ---
+/config.toml
+*.toml.local
+*.key
+/secrets/
+
+# --- Logs ---
+*.log
+/logs/
+
+# --- UPX / packing ---
+*.upx
+
+# --- Windows ---
+Thumbs.db
+desktop.ini

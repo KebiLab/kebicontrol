@@ -1,0 +1,30 @@
+[package]
+name = "kebi-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Core domain types and command parsing. Made by KebiLab"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+serde_with.workspace = true
+toml.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+async-trait.workspace = true
+tracing.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+regex.workspace = true
+fuzzy-matcher = "0.3"
+once_cell = "1.19"
+directories.workspace = true
+dirs.workspace = true
+# Windows-specific
+windows.workspace = true
+enigo.workspace = true
+sysinfo.workspace = true

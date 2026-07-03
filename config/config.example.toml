@@ -1,0 +1,58 @@
+# KebiControl — example configuration.
+# Copy to: %APPDATA%\KebiControl\config.toml
+# Made by KebiLab
+
+[general]
+language = "ru"                 # "ru" | "en"
+wake_word = "кеби"              # настраивается в UI
+autostart = false
+tts_enabled = true
+log_level = "info"              # "trace" | "debug" | "info" | "warn" | "error"
+active_profile = "default"
+
+[hotkeys]
+# Горячие клавиши по умолчанию. Свободно настраиваются в UI.
+push_to_listen = "Ctrl+Shift+Space"
+overlay = "Ctrl+Shift+K"
+cancel = "Escape"
+toggle_tts = "Ctrl+Shift+M"
+dictation = "Ctrl+Shift+D"
+pause = "Ctrl+Shift+P"
+
+[audio]
+device_name = "default"
+sample_rate = 16000
+vad_threshold = 0.012           # RMS порог тишины
+silence_ms = 700                # сколько тишины = конец фразы
+max_phrase_ms = 8000
+
+[stt]
+# Локальный движок (Vosk). "small-ru" или "small-en".
+engine = "vosk"
+auto_download_model = true
+whisper_api = ""                # если хотите облачный Whisper — endpoint
+
+[llm]
+provider = "opencode"           # "opencode" | "deepseek" | "mimo" | "nvidia" | "custom"
+base_url = "https://api.opencode.ai/v1"
+model = "deepseek-v4-flash"
+api_key_enc = ""                # Заполняется автоматически через DPAPI
+timeout_secs = 30
+max_context_turns = 6
+
+# Свой провайдер (если provider = "custom"):
+# [llm.custom]
+# base_url = "https://api.example.com/v1"
+# model = "my-model"
+# api_key_enc = ""
+
+[ui]
+theme = "midnight"              # "midnight" | "dawn"
+opacity = 0.92
+show_overlay_on_start = false
+minimize_to_tray = true
+
+[tts]
+voice = "ru-RU, Irina"          # системный голос SAPI
+rate = 0                        # -10..+10
+volume = 100                    # 0..100
