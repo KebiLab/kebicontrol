@@ -47,7 +47,7 @@ uuid = { version = "1.10", features = ["v4", "serde"] }
 
 # Logging
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "rolling-file"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-appender = "0.2"
 
 # Paths / fs
@@ -71,29 +71,13 @@ cpal = "0.15"
 sysinfo = "0.31"
 enigo = "0.2"
 
-# Windows-specific
-windows = { version = "0.58", features = [
-    "Win32_Foundation",
-    "Win32_UI_KeyboardAndMouse",
-    "Win32_UI_WindowsAndMessaging",
-    "Win32_System_Com",
-    "Win32_System_Console",
-    "Win32_System_Threading",
-    "Win32_Media",
-    "Win32_Media_Audio",
-    "Win32_Storage_FileSystem",
-    "Win32_Networking_WinSock",
-    "Win32_Security_Cryptography",
-    "Win32_Graphics_Gdi",
-    "Win32_System_Power",
-    "Win32_System_Registry",
-] }
+# Windows-specific — see per-crate Cargo.toml
 
-# Vosk STT (FFI)
-vosk = { version = "0.3", default-features = false, features = ["libvosk"] }
+# Vosk STT (FFI) - optional, enable with --features vosk
+vosk = "0.3"
 
 # Single instance
-single-instance = "0.4"
+single-instance = "0.3"
 
 # Regex / text
 regex = "1.10"

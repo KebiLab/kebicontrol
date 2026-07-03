@@ -5,6 +5,7 @@ use anyhow::{Context, Result};
 use async_trait::async_trait;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+#[cfg(feature = "vosk")]
 use vosk::{Model, Recognizer};
 
 /// Vosk-based recognizer. We only enable this on platforms where the FFI lib
