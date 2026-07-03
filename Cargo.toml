@@ -1,5 +1,5 @@
-// KebiControl workspace
-// Made by KebiLab
+# KebiControl workspace
+# Made by KebiLab
 
 [workspace]
 resolver = "2"
