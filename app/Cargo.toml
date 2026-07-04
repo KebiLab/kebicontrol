@@ -19,6 +19,11 @@ kebi-llm = { path = "../crates/kebi-llm" }
 kebi-tts = { path = "../crates/kebi-tts" }
 kebi-ui = { path = "../crates/kebi-ui" }
 
+eframe = { workspace = true }
+egui = { workspace = true }
+tray-icon = "0.19"
+global-hotkey = { workspace = true }
+
 tokio.workspace = true
 anyhow.workspace = true
 thiserror.workspace = true
@@ -30,7 +35,7 @@ serde.workspace = true
 serde_json.workspace = true
 directories.workspace = true
 dirs.workspace = true
-single-instance.workspace = true
+single-instance = "0.3"
 chrono.workspace = true
 async-trait.workspace = true
 once_cell = "1.19"

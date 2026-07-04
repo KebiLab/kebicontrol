@@ -10,7 +10,6 @@ description = "UI: tray, overlay, settings. Made by KebiLab"
 [dependencies]
 egui.workspace = true
 eframe.workspace = true
-tray-icon.workspace = true
 global-hotkey.workspace = true
 
 kebi-core = { path = "../kebi-core" }
@@ -28,12 +27,6 @@ async-trait.workspace = true
 directories.workspace = true
 dirs.workspace = true
 
-windows = { version = "0.61", features = [
-    "Win32_Foundation",
-    "Win32_UI_WindowsAndMessaging",
-    "Win32_System_Com",
-    "Win32_System_Threading",
-    "Win32_UI_Shell",
-    "Win32_Storage_FileSystem",
-    "Win32_UI_Accessibility",
-] }
+[features]
+default = []
+tray = []

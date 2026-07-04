@@ -9,9 +9,11 @@ ar = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/ar.exe"
 CC = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/gcc.exe"
 CXX = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/g++.exe"
 AR = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/ar.exe"
+DLLTOOL = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/dlltool.exe"
 CC_x86_64_pc_windows_gnu = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/gcc.exe"
 CXX_x86_64_pc_windows_gnu = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/g++.exe"
 AR_x86_64_pc_windows_gnu = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/ar.exe"
+DLLTOOL_x86_64_pc_windows_gnu = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/dlltool.exe"
 
 [net]
 git-fetch-with-cli = true

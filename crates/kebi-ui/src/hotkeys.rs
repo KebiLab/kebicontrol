@@ -1,4 +1,4 @@
-//! Global hotkey registration. Made by KebiLab
+//! Hotkey parsing. Made by KebiLab
 
 use anyhow::Result;
 use global_hotkey::hotkey::{Code, HotKey, Modifiers};
@@ -8,8 +8,7 @@ pub fn parse_hotkey(s: &str) -> Option<HotKey> {
     let mut mods = Modifiers::empty();
     let mut key: Option<Code> = None;
     for tok in s.split('+') {
-        let t = tok.trim();
-        match t.to_lowercase().as_str() {
+        match tok.trim().to_lowercase().as_str() {
             "ctrl" | "control" => mods |= Modifiers::CONTROL,
             "shift" => mods |= Modifiers::SHIFT,
             "alt" => mods |= Modifiers::ALT,
@@ -20,9 +19,8 @@ pub fn parse_hotkey(s: &str) -> Option<HotKey> {
             "m" => key = Some(Code::KeyM),
             "d" => key = Some(Code::KeyD),
             "p" => key = Some(Code::KeyP),
-            "k" => key = Some(Code::KeyK),
             other => {
-                if other.len() == 1 {
+                if other.chars().count() == 1 {
                     let c = other.chars().next().unwrap().to_ascii_uppercase();
                     key = Some(match c {
                         'A' => Code::KeyA, 'B' => Code::KeyB, 'C' => Code::KeyC, 'D' => Code::KeyD,
@@ -38,7 +36,7 @@ pub fn parse_hotkey(s: &str) -> Option<HotKey> {
             }
         }
     }
-    Some(HotKey::new(mods, key?))
+    Some(HotKey::new(Some(mods), key?))
 }
 
 pub fn build_manager() -> Result<GlobalHotKeyManager> {

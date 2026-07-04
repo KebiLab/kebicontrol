@@ -1,7 +1,6 @@
-//! KebiControl — entry point. Made by KebiLab
+//! Entry point. Made by KebiLab
 
 mod state;
-mod ipc;
 
 use crate::state::AppState;
 use anyhow::Result;
@@ -16,16 +15,13 @@ use tracing::info;
 #[derive(Parser, Debug)]
 #[command(name = "KebiControl", author = "KebiLab", version, about = "Voice control for Windows. Made by KebiLab.")]
 struct Args {
-    /// Start hidden in tray.
     #[arg(long)]
     hidden: bool,
-    /// Path to a config file.
     #[arg(long)]
     config: Option<String>,
 }
 
-#[tokio::main(flavor = "multi_thread")]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let _instance = SingleInstance::new("KebiControl-KebiLab")
         .unwrap_or_else(|_| std::process::exit(0));
 
@@ -41,7 +37,6 @@ async fn main() -> Result<()> {
         }
     }
 
-    // Profile
     let profile_path = paths.profiles_dir.join(format!("{}.toml", config.general.active_profile));
     let profile = if profile_path.exists() {
         Profile::load_from(&profile_path).unwrap_or_default()
@@ -50,11 +45,7 @@ async fn main() -> Result<()> {
         let _ = p.save_to(&profile_path);
         p
     };
-    if config.general.autostart {
-        let _ = kebi_ui::autostart::set_autostart(true);
-    }
 
-    // LLM client
     let api_key = config.get_api_key().unwrap_or_default();
     let llm = Arc::new(Mutex::new(LlmClient::new(
         config.llm.base_url.clone(),
@@ -63,19 +54,31 @@ async fn main() -> Result<()> {
         config.llm.timeout_secs,
     )));
 
-    // State
     let state = Arc::new(AppState::new(config, profile, paths, llm));
+    let _ = args.hidden;
 
-    // Hotkeys, tray, overlay, settings (each in its own thread)
-    state::wire(state.clone()).await?;
+    eframe::run_native(
+        "KebiControl",
+        eframe::NativeOptions {
+            viewport: eframe::egui::ViewportBuilder::default()
+                .with_inner_size([640.0, 480.0])
+                .with_transparent(true)
+                .with_decorations(true),
+            ..Default::default()
+        },
+        Box::new(move |cc| {
+            theme_install(cc.egui_ctx.clone());
+            let overlay = kebi_ui::OverlayApp::new(state.config().general.wake_word.clone());
+            Box::new(overlay)
+        }),
+    )
+    .map_err(|e| anyhow::anyhow!("eframe: {e}"))?;
 
-    info!("KebiControl ready");
-    // Keep main thread alive
-    loop {
-        tokio::time::sleep(std::time::Duration::from_secs(3600)).await;
-        if state.is_quit() { break; }
-    }
     Ok(())
+}
+
+fn theme_install(ctx: eframe::egui::Context) {
+    kebi_ui::theme::install(&ctx);
 }
 
 fn init_tracing(paths: &AppPaths) {

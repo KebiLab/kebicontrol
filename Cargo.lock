@@ -2334,8 +2334,6 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tracing",
- "tray-icon",
- "windows 0.61.3",
 ]
 
 [[package]]
@@ -2348,6 +2346,9 @@ dependencies = [
  "clap",
  "directories",
  "dirs 5.0.1",
+ "eframe",
+ "egui",
+ "global-hotkey",
  "kebi-audio",
  "kebi-core",
  "kebi-llm",
@@ -2364,6 +2365,7 @@ dependencies = [
  "tracing",
  "tracing-appender",
  "tracing-subscriber",
+ "tray-icon",
 ]
 
 [[package]]
