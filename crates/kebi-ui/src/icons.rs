@@ -1,82 +1,72 @@
-//! Minimalist vector icons drawn with egui's `Shape` API.
-//! No emoji, no external assets. Made by KebiLab
+//! Minimalist vector icons. No emoji. Made by KebiLab
 
 use eframe::egui::{self, Color32, Pos2, Rect, Sense, Shape, Stroke, Vec2};
 
-/// 16x16 logical icon, scaled at draw time.
 fn px(rect: Rect, x: f32, y: f32) -> Pos2 {
     Pos2::new(rect.left() + x, rect.top() + y)
 }
 
-/// Draw a stroke icon into the given rect.
 pub fn draw(ui: &mut egui::Ui, rect: Rect, color: Color32, stroke: f32, icon: Icon) {
     let s = stroke;
+    let r = rect;
+    let p = |x, y| px(r, x, y);
     match icon {
         Icon::Mic => {
-            // Capsule + stand + base
-            let capsule = [px(rect, 6.0, 2.0), px(rect, 10.0, 2.0),
-                           px(rect, 10.0, 9.0), px(rect, 6.0, 9.0)];
+            let capsule = [p(6.0, 2.0), p(10.0, 2.0), p(10.0, 9.0), p(6.0, 9.0)];
             ui.painter().add(Shape::convex_polygon(capsule.to_vec(), color, Stroke::NONE));
-            ui.painter().line_segment([px(rect, 4.0, 7.0), px(rect, 12.0, 7.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 8.0, 7.0), px(rect, 8.0, 12.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 5.0, 12.0), px(rect, 11.0, 12.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(4.0, 7.0), p(12.0, 7.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(8.0, 7.0), p(8.0, 12.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(5.0, 12.0), p(11.0, 12.0)], Stroke::new(s, color));
         }
         Icon::MicOff => {
-            let capsule = [px(rect, 6.0, 2.0), px(rect, 10.0, 2.0),
-                           px(rect, 10.0, 9.0), px(rect, 6.0, 9.0)];
+            let capsule = [p(6.0, 2.0), p(10.0, 2.0), p(10.0, 9.0), p(6.0, 9.0)];
             ui.painter().add(Shape::convex_polygon(capsule.to_vec(), color, Stroke::NONE));
-            // strike
-            ui.painter().line_segment([px(rect, 3.0, 3.0), px(rect, 13.0, 13.0)], Stroke::new(s + 0.5, color));
+            ui.painter().line_segment([p(3.0, 3.0), p(13.0, 13.0)], Stroke::new(s + 0.5, color));
         }
         Icon::Pause => {
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 4.0, 3.0), Vec2::new(2.5, 10.0)), 0.5, color);
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 9.5, 3.0), Vec2::new(2.5, 10.0)), 0.5, color);
+            ui.painter().rect_filled(Rect::from_min_size(p(4.0, 3.0), Vec2::new(2.5, 10.0)), 0.5, color);
+            ui.painter().rect_filled(Rect::from_min_size(p(9.5, 3.0), Vec2::new(2.5, 10.0)), 0.5, color);
         }
         Icon::Stop => {
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 4.0, 4.0), Vec2::new(8.0, 8.0)), 1.0, color);
+            ui.painter().rect_filled(Rect::from_min_size(p(4.0, 4.0), Vec2::new(8.0, 8.0)), 1.0, color);
         }
         Icon::Next => {
-            let tri = vec![px(rect, 4.0, 3.0), px(rect, 9.0, 8.0), px(rect, 4.0, 13.0)];
+            let tri = vec![p(4.0, 3.0), p(9.0, 8.0), p(4.0, 13.0)];
             ui.painter().add(Shape::convex_polygon(tri, color, Stroke::NONE));
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 10.0, 3.0), Vec2::new(1.5, 10.0)), 0.3, color);
+            ui.painter().rect_filled(Rect::from_min_size(p(10.0, 3.0), Vec2::new(1.5, 10.0)), 0.3, color);
         }
         Icon::Prev => {
-            let tri = vec![px(rect, 12.0, 3.0), px(rect, 7.0, 8.0), px(rect, 12.0, 13.0)];
+            let tri = vec![p(12.0, 3.0), p(7.0, 8.0), p(12.0, 13.0)];
             ui.painter().add(Shape::convex_polygon(tri, color, Stroke::NONE));
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 4.5, 3.0), Vec2::new(1.5, 10.0)), 0.3, color);
+            ui.painter().rect_filled(Rect::from_min_size(p(4.5, 3.0), Vec2::new(1.5, 10.0)), 0.3, color);
         }
         Icon::Screenshot => {
-            // corners + center dot
             let c = 2.0;
-            ui.painter().line_segment([px(rect, 2.0, 5.0), px(rect, 2.0, 2.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 2.0, 2.0), px(rect, 5.0, 2.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 11.0, 2.0), px(rect, 14.0, 2.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 14.0, 2.0), px(rect, 14.0, 5.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 2.0, 11.0), px(rect, 2.0, 14.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 2.0, 14.0), px(rect, 5.0, 14.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 11.0, 14.0), px(rect, 14.0, 14.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 14.0, 11.0), px(rect, 14.0, 14.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(2.0, 5.0), p(2.0, 2.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(2.0, 2.0), p(5.0, 2.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(11.0, 2.0), p(14.0, 2.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(14.0, 2.0), p(14.0, 5.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(2.0, 11.0), p(2.0, 14.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(2.0, 14.0), p(5.0, 14.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(11.0, 14.0), p(14.0, 14.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(14.0, 11.0), p(14.0, 14.0)], Stroke::new(s, color));
             let _ = c;
         }
         Icon::VolumeUp => {
-            // speaker
-            let s1 = [px(rect, 3.0, 6.0), px(rect, 6.0, 6.0), px(rect, 9.0, 3.0), px(rect, 9.0, 13.0), px(rect, 6.0, 10.0), px(rect, 3.0, 10.0)];
+            let s1 = [p(3.0, 6.0), p(6.0, 6.0), p(9.0, 3.0), p(9.0, 13.0), p(6.0, 10.0), p(3.0, 10.0)];
             ui.painter().add(Shape::convex_polygon(s1.to_vec(), color, Stroke::NONE));
-            // waves
-            ui.painter().line_segment([px(rect, 11.0, 5.0), px(rect, 13.0, 3.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 11.0, 11.0), px(rect, 13.0, 13.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(11.0, 5.0), p(13.0, 3.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(11.0, 11.0), p(13.0, 13.0)], Stroke::new(s, color));
         }
         Icon::VolumeDown => {
-            let s1 = [px(rect, 3.0, 6.0), px(rect, 6.0, 6.0), px(rect, 9.0, 3.0), px(rect, 9.0, 13.0), px(rect, 6.0, 10.0), px(rect, 3.0, 10.0)];
+            let s1 = [p(3.0, 6.0), p(6.0, 6.0), p(9.0, 3.0), p(9.0, 13.0), p(6.0, 10.0), p(3.0, 10.0)];
             ui.painter().add(Shape::convex_polygon(s1.to_vec(), color, Stroke::NONE));
-            ui.painter().line_segment([px(rect, 11.0, 8.0), px(rect, 13.0, 8.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(11.0, 8.0), p(13.0, 8.0)], Stroke::new(s, color));
         }
         Icon::Settings => {
-            // gear: outer ring (stroked) + inner hole
-            let center = px(rect, 8.0, 8.0);
+            let center = p(8.0, 8.0);
             ui.painter().circle_stroke(center, 5.0, Stroke::new(s, color));
             ui.painter().circle_filled(center, 1.6, color);
-            // 8 teeth
             for i in 0..8 {
                 let a = (i as f32) * std::f32::consts::TAU / 8.0 + std::f32::consts::PI / 8.0;
                 let inner = Pos2::new(center.x + a.cos() * 5.0, center.y + a.sin() * 5.0);
@@ -85,68 +75,89 @@ pub fn draw(ui: &mut egui::Ui, rect: Rect, color: Color32, stroke: f32, icon: Ic
             }
         }
         Icon::Save => {
-            // floppy: square with notch and inner rect
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 2.0, 2.0), Vec2::new(12.0, 12.0)), 1.0, Color32::TRANSPARENT);
-            ui.painter().rect_stroke(Rect::from_min_size(px(rect, 2.0, 2.0), Vec2::new(12.0, 12.0)), 0.0, Stroke::new(s, color));
-            // label area
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 4.0, 2.0), Vec2::new(8.0, 4.0)), 0.0, color);
-            // bottom slot
-            ui.painter().rect_stroke(Rect::from_min_size(px(rect, 5.0, 8.0), Vec2::new(6.0, 4.0)), 0.0, Stroke::new(s, color));
+            ui.painter().rect_stroke(Rect::from_min_size(p(2.0, 2.0), Vec2::new(12.0, 12.0)), 0.0, Stroke::new(s, color));
+            ui.painter().rect_filled(Rect::from_min_size(p(4.0, 2.0), Vec2::new(8.0, 4.0)), 0.0, color);
+            ui.painter().rect_stroke(Rect::from_min_size(p(5.0, 8.0), Vec2::new(6.0, 4.0)), 0.0, Stroke::new(s, color));
         }
         Icon::Close => {
-            ui.painter().line_segment([px(rect, 4.0, 4.0), px(rect, 12.0, 12.0)], Stroke::new(s + 0.5, color));
-            ui.painter().line_segment([px(rect, 12.0, 4.0), px(rect, 4.0, 12.0)], Stroke::new(s + 0.5, color));
+            ui.painter().line_segment([p(4.0, 4.0), p(12.0, 12.0)], Stroke::new(s + 0.5, color));
+            ui.painter().line_segment([p(12.0, 4.0), p(4.0, 12.0)], Stroke::new(s + 0.5, color));
         }
         Icon::ChevronDown => {
-            ui.painter().line_segment([px(rect, 4.0, 6.0), px(rect, 8.0, 10.0)], Stroke::new(s + 0.3, color));
-            ui.painter().line_segment([px(rect, 8.0, 10.0), px(rect, 12.0, 6.0)], Stroke::new(s + 0.3, color));
+            ui.painter().line_segment([p(4.0, 6.0), p(8.0, 10.0)], Stroke::new(s + 0.3, color));
+            ui.painter().line_segment([p(8.0, 10.0), p(12.0, 6.0)], Stroke::new(s + 0.3, color));
+        }
+        Icon::ChevronRight => {
+            ui.painter().line_segment([p(6.0, 4.0), p(10.0, 8.0)], Stroke::new(s + 0.3, color));
+            ui.painter().line_segment([p(10.0, 8.0), p(6.0, 12.0)], Stroke::new(s + 0.3, color));
         }
         Icon::Dot => {
-            ui.painter().circle_filled(px(rect, 8.0, 8.0), 2.5, color);
+            ui.painter().circle_filled(p(8.0, 8.0), 2.5, color);
         }
         Icon::Search => {
-            // circle + handle
-            ui.painter().circle_stroke(px(rect, 7.0, 7.0), 3.5, Stroke::new(s + 0.3, color));
-            ui.painter().line_segment([px(rect, 9.5, 9.5), px(rect, 13.0, 13.0)], Stroke::new(s + 0.5, color));
+            ui.painter().circle_stroke(p(7.0, 7.0), 3.5, Stroke::new(s + 0.3, color));
+            ui.painter().line_segment([p(9.5, 9.5), p(13.0, 13.0)], Stroke::new(s + 0.5, color));
         }
         Icon::Play => {
-            let tri = vec![px(rect, 4.0, 3.0), px(rect, 12.0, 8.0), px(rect, 4.0, 13.0)];
+            let tri = vec![p(4.0, 3.0), p(12.0, 8.0), p(4.0, 13.0)];
             ui.painter().add(Shape::convex_polygon(tri, color, Stroke::NONE));
         }
         Icon::Home => {
-            // roof + body
-            let roof = vec![px(rect, 2.0, 8.0), px(rect, 8.0, 3.0), px(rect, 14.0, 8.0)];
-            ui.painter().line_segment([px(rect, 2.0, 8.0), px(rect, 14.0, 8.0)], Stroke::new(s, color));
+            let roof = vec![p(2.0, 8.0), p(8.0, 3.0), p(14.0, 8.0)];
+            ui.painter().line_segment([p(2.0, 8.0), p(14.0, 8.0)], Stroke::new(s, color));
             ui.painter().add(Shape::convex_polygon(roof, color, Stroke::NONE));
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 4.0, 8.0), Vec2::new(8.0, 6.0)), 0.0, color);
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 7.0, 10.0), Vec2::new(2.0, 4.0)), 0.0, pbg(ui));
+            ui.painter().rect_filled(Rect::from_min_size(p(4.0, 8.0), Vec2::new(8.0, 6.0)), 0.0, color);
         }
         Icon::History => {
-            // circle with arrow tip
-            ui.painter().circle_stroke(px(rect, 8.0, 8.0), 5.0, Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 8.0, 8.0), px(rect, 8.0, 5.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 8.0, 8.0), px(rect, 11.0, 8.0)], Stroke::new(s, color));
+            ui.painter().circle_stroke(p(8.0, 8.0), 5.0, Stroke::new(s, color));
+            ui.painter().line_segment([p(8.0, 8.0), p(8.0, 5.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(8.0, 8.0), p(11.0, 8.0)], Stroke::new(s, color));
         }
         Icon::Key => {
-            // circle + bit
-            ui.painter().circle_stroke(px(rect, 5.0, 8.0), 2.0, Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 6.5, 8.0), px(rect, 14.0, 8.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 12.0, 8.0), px(rect, 12.0, 11.0)], Stroke::new(s, color));
-            ui.painter().line_segment([px(rect, 14.0, 8.0), px(rect, 14.0, 10.0)], Stroke::new(s, color));
+            ui.painter().circle_stroke(p(5.0, 8.0), 2.0, Stroke::new(s, color));
+            ui.painter().line_segment([p(6.5, 8.0), p(14.0, 8.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(12.0, 8.0), p(12.0, 11.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(14.0, 8.0), p(14.0, 10.0)], Stroke::new(s, color));
         }
         Icon::Info => {
-            ui.painter().circle_stroke(px(rect, 8.0, 8.0), 6.0, Stroke::new(s, color));
-            ui.painter().circle_filled(px(rect, 8.0, 5.0), 0.8, color);
-            ui.painter().rect_filled(Rect::from_min_size(px(rect, 7.0, 7.0), Vec2::new(2.0, 5.0)), 0.0, color);
+            ui.painter().circle_stroke(p(8.0, 8.0), 6.0, Stroke::new(s, color));
+            ui.painter().circle_filled(p(8.0, 5.0), 0.8, color);
+            ui.painter().rect_filled(Rect::from_min_size(p(7.0, 7.0), Vec2::new(2.0, 5.0)), 0.0, color);
+        }
+        Icon::Logo => {
+            // Stylized K with voice dot.
+            // Vertical bar
+            ui.painter().rect_filled(Rect::from_min_size(p(3.0, 2.0), Vec2::new(2.5, 12.0)), 0.6, color);
+            // Upper diagonal
+            let upper = vec![p(5.5, 8.0), p(8.5, 4.0), p(10.5, 4.0), p(7.5, 8.0)];
+            ui.painter().add(Shape::convex_polygon(upper, color, Stroke::NONE));
+            // Lower diagonal
+            let lower = vec![p(5.5, 8.0), p(8.5, 12.0), p(10.5, 12.0), p(7.5, 8.0)];
+            ui.painter().add(Shape::convex_polygon(lower, color, Stroke::NONE));
+            // Voice dot
+            ui.painter().circle_filled(p(13.0, 4.0), 1.4, color);
+        }
+        Icon::Eye => {
+            // Eye outline + pupil
+            ui.painter().line_segment([p(2.0, 8.0), p(4.0, 5.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(4.0, 5.0), p(8.0, 4.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(8.0, 4.0), p(12.0, 5.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(12.0, 5.0), p(14.0, 8.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(14.0, 8.0), p(12.0, 11.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(12.0, 11.0), p(8.0, 12.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(8.0, 12.0), p(4.0, 11.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(4.0, 11.0), p(2.0, 8.0)], Stroke::new(s, color));
+            ui.painter().circle_filled(p(8.0, 8.0), 2.2, color);
+        }
+        Icon::EyeOff => {
+            ui.painter().line_segment([p(2.0, 8.0), p(14.0, 8.0)], Stroke::new(s, color));
+            ui.painter().line_segment([p(3.0, 4.0), p(13.0, 12.0)], Stroke::new(s + 0.5, color));
         }
     }
 }
 
-fn pbg(ui: &egui::Ui) -> Color32 {
-    ui.visuals().window_fill
-}
-
 /// Allocate space and draw an icon inline. Returns the response.
+#[allow(dead_code)]
 pub fn icon_button(ui: &mut egui::Ui, icon: Icon, color: Color32) -> egui::Response {
     let desired = Vec2::new(18.0, 18.0);
     let (rect, response) = ui.allocate_exact_size(desired, Sense::click());
@@ -157,6 +168,6 @@ pub fn icon_button(ui: &mut egui::Ui, icon: Icon, color: Color32) -> egui::Respo
 #[derive(Debug, Clone, Copy)]
 pub enum Icon {
     Mic, MicOff, Pause, Stop, Next, Prev, Screenshot,
-    VolumeUp, VolumeDown, Settings, Save, Close, ChevronDown, Dot, Search,
-    Play, Home, History, Key, Info,
+    VolumeUp, VolumeDown, Settings, Save, Close, ChevronDown, ChevronRight, Dot, Search,
+    Play, Home, History, Key, Info, Logo, Eye, EyeOff,
 }

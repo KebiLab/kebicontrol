@@ -2,6 +2,7 @@
 
 pub mod providers;
 pub mod client;
+pub mod anthropic;
 pub mod prompt;
 
 pub use client::LlmClient;

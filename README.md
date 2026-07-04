@@ -2,6 +2,8 @@
 
 Voice control for Windows. Made by KebiLab.
 
+![logo](assets/logo/kebicontrol-logo.svg)
+
 KebiControl listens to your microphone, understands commands in Russian and English, and runs them locally. When a command is not built in, it asks a configured language model and executes the result.
 
 ## Features

@@ -39,17 +39,21 @@ fn main() -> Result<()> {
         p
     };
 
+    let mut native_options = eframe::NativeOptions {
+        viewport: eframe::egui::ViewportBuilder::default()
+            .with_inner_size([960.0, 640.0])
+            .with_min_inner_size([860.0, 580.0])
+            .with_transparent(false)
+            .with_decorations(true)
+            .with_title("KebiControl — Made by KebiLab"),
+        ..Default::default()
+    };
+    if let Some(icon) = kebi_ui::load_icon() {
+        native_options.viewport = native_options.viewport.with_icon(icon);
+    }
     eframe::run_native(
         "KebiControl",
-        eframe::NativeOptions {
-            viewport: eframe::egui::ViewportBuilder::default()
-                .with_inner_size([960.0, 640.0])
-                .with_min_inner_size([860.0, 580.0])
-                .with_transparent(false)
-                .with_decorations(true)
-                .with_title("KebiControl — Made by KebiLab"),
-            ..Default::default()
-        },
+        native_options,
         Box::new(move |cc| {
             let _ = cc.egui_ctx;
             Box::new(MainApp::new(config.clone()))
@@ -65,9 +69,9 @@ fn init_tracing(paths: &AppPaths) {
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
     let file_appender = tracing_appender::rolling::daily(&paths.logs_dir, "kebicontrol.log");
     let (nb, _g) = tracing_appender::non_blocking(file_appender);
+    // File only — no stdout/stderr layer (would open a terminal window).
     let _ = tracing_subscriber::registry()
         .with(filter)
-        .with(fmt::layer().with_target(false).with_writer(nb))
-        .with(fmt::layer().with_target(false))
+        .with(fmt::layer().with_target(false).with_writer(nb).with_ansi(false))
         .try_init();
 }

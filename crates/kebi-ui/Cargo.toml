@@ -27,6 +27,7 @@ async-trait.workspace = true
 directories.workspace = true
 dirs.workspace = true
 chrono.workspace = true
+ico = "0.3"
 
 [features]
 default = []
