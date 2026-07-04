@@ -109,7 +109,41 @@ pub fn draw(ui: &mut egui::Ui, rect: Rect, color: Color32, stroke: f32, icon: Ic
             ui.painter().circle_stroke(px(rect, 7.0, 7.0), 3.5, Stroke::new(s + 0.3, color));
             ui.painter().line_segment([px(rect, 9.5, 9.5), px(rect, 13.0, 13.0)], Stroke::new(s + 0.5, color));
         }
+        Icon::Play => {
+            let tri = vec![px(rect, 4.0, 3.0), px(rect, 12.0, 8.0), px(rect, 4.0, 13.0)];
+            ui.painter().add(Shape::convex_polygon(tri, color, Stroke::NONE));
+        }
+        Icon::Home => {
+            // roof + body
+            let roof = vec![px(rect, 2.0, 8.0), px(rect, 8.0, 3.0), px(rect, 14.0, 8.0)];
+            ui.painter().line_segment([px(rect, 2.0, 8.0), px(rect, 14.0, 8.0)], Stroke::new(s, color));
+            ui.painter().add(Shape::convex_polygon(roof, color, Stroke::NONE));
+            ui.painter().rect_filled(Rect::from_min_size(px(rect, 4.0, 8.0), Vec2::new(8.0, 6.0)), 0.0, color);
+            ui.painter().rect_filled(Rect::from_min_size(px(rect, 7.0, 10.0), Vec2::new(2.0, 4.0)), 0.0, pbg(ui));
+        }
+        Icon::History => {
+            // circle with arrow tip
+            ui.painter().circle_stroke(px(rect, 8.0, 8.0), 5.0, Stroke::new(s, color));
+            ui.painter().line_segment([px(rect, 8.0, 8.0), px(rect, 8.0, 5.0)], Stroke::new(s, color));
+            ui.painter().line_segment([px(rect, 8.0, 8.0), px(rect, 11.0, 8.0)], Stroke::new(s, color));
+        }
+        Icon::Key => {
+            // circle + bit
+            ui.painter().circle_stroke(px(rect, 5.0, 8.0), 2.0, Stroke::new(s, color));
+            ui.painter().line_segment([px(rect, 6.5, 8.0), px(rect, 14.0, 8.0)], Stroke::new(s, color));
+            ui.painter().line_segment([px(rect, 12.0, 8.0), px(rect, 12.0, 11.0)], Stroke::new(s, color));
+            ui.painter().line_segment([px(rect, 14.0, 8.0), px(rect, 14.0, 10.0)], Stroke::new(s, color));
+        }
+        Icon::Info => {
+            ui.painter().circle_stroke(px(rect, 8.0, 8.0), 6.0, Stroke::new(s, color));
+            ui.painter().circle_filled(px(rect, 8.0, 5.0), 0.8, color);
+            ui.painter().rect_filled(Rect::from_min_size(px(rect, 7.0, 7.0), Vec2::new(2.0, 5.0)), 0.0, color);
+        }
     }
+}
+
+fn pbg(ui: &egui::Ui) -> Color32 {
+    ui.visuals().window_fill
 }
 
 /// Allocate space and draw an icon inline. Returns the response.
@@ -124,4 +158,5 @@ pub fn icon_button(ui: &mut egui::Ui, icon: Icon, color: Color32) -> egui::Respo
 pub enum Icon {
     Mic, MicOff, Pause, Stop, Next, Prev, Screenshot,
     VolumeUp, VolumeDown, Settings, Save, Close, ChevronDown, Dot, Search,
+    Play, Home, History, Key, Info,
 }

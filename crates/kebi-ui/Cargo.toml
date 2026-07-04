@@ -26,6 +26,7 @@ tokio.workspace = true
 async-trait.workspace = true
 directories.workspace = true
 dirs.workspace = true
+chrono.workspace = true
 
 [features]
 default = []

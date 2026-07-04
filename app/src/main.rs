@@ -3,20 +3,13 @@
 use anyhow::Result;
 use clap::Parser;
 use kebi_core::{AppPaths, Config, Profile};
-use kebi_llm::LlmClient;
-use kebi_ui::{OverlayApp, SettingsApp};
+use kebi_ui::MainApp;
 use single_instance::SingleInstance;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
 use tracing::info;
 
 #[derive(Parser, Debug)]
 #[command(name = "KebiControl", author = "KebiLab", version, about = "Voice control for Windows. Made by KebiLab.")]
 struct Args {
-    /// Open Settings window instead of the overlay.
-    #[arg(long)]
-    settings: bool,
-    /// Path to a config file.
     #[arg(long)]
     config: Option<String>,
 }
@@ -38,7 +31,7 @@ fn main() -> Result<()> {
     }
 
     let profile_path = paths.profiles_dir.join(format!("{}.toml", config.general.active_profile));
-    let profile = if profile_path.exists() {
+    let _profile = if profile_path.exists() {
         Profile::load_from(&profile_path).unwrap_or_default()
     } else {
         let p = Profile::default();
@@ -46,91 +39,25 @@ fn main() -> Result<()> {
         p
     };
 
-    let _api_key = config.get_api_key().unwrap_or_default();
-    let _llm = Arc::new(tokio::sync::Mutex::new(LlmClient::new(
-        config.llm.base_url.clone(),
-        String::new(),
-        config.llm.model.clone(),
-        config.llm.timeout_secs,
-    )));
-    let _profile = profile;
-    let _paths = paths;
-
     eframe::run_native(
         "KebiControl",
         eframe::NativeOptions {
             viewport: eframe::egui::ViewportBuilder::default()
-                .with_inner_size([560.0, 560.0])
-                .with_min_inner_size([480.0, 420.0])
+                .with_inner_size([960.0, 640.0])
+                .with_min_inner_size([860.0, 580.0])
                 .with_transparent(false)
                 .with_decorations(true)
                 .with_title("KebiControl — Made by KebiLab"),
             ..Default::default()
         },
         Box::new(move |cc| {
-            let open_settings = Arc::new(AtomicBool::new(args.settings));
-            if args.settings {
-                Box::new(SettingsApp::new(config.clone()))
-            } else {
-                theme_install(cc.egui_ctx.clone());
-                let mut app = OverlayApp::new(open_settings.clone());
-                app.status = format!("Готов — скажите «{}»", config.general.wake_word);
-                Box::new(OverlayHost::new(app, config, open_settings))
-            }
+            let _ = cc.egui_ctx;
+            Box::new(MainApp::new(config.clone()))
         }),
     )
     .map_err(|e| anyhow::anyhow!("eframe: {e}"))?;
 
     Ok(())
-}
-
-/// Hosts OverlayApp and opens Settings when the flag is set.
-struct OverlayHost {
-    overlay: OverlayApp,
-    config: Config,
-    open_settings_flag: Arc<AtomicBool>,
-    settings_open: bool,
-}
-
-impl OverlayHost {
-    fn new(overlay: OverlayApp, config: Config, flag: Arc<AtomicBool>) -> Self {
-        Self { overlay, config, open_settings_flag: flag, settings_open: false }
-    }
-}
-
-impl eframe::App for OverlayHost {
-    fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
-        if self.open_settings_flag.swap(false, Ordering::SeqCst) {
-            self.settings_open = true;
-        }
-        if self.settings_open {
-            let mut settings = SettingsApp::new(self.config.clone());
-            let mut close = false;
-            egui::Window::new("Настройки — KebiControl")
-                .title_bar(true)
-                .resizable(true)
-                .default_size(egui::Vec2::new(520.0, 620.0))
-                .show(ctx, |ui| {
-                    // Use a fake App to render the settings body.
-                    // We delegate by simulating update via a dummy Frame.
-                    settings.update(ctx, _frame);
-                    ui.horizontal(|ui| {
-                        if ui.button("Закрыть").clicked() { close = true; }
-                        if ui.button("Сохранить").clicked() {
-                            self.config = settings.config.clone();
-                            let _ = self.config.save(&kebi_core::AppPaths::new());
-                        }
-                    });
-                });
-            if close { self.settings_open = false; }
-            self.config = settings.config;
-        }
-        self.overlay.update(ctx, _frame);
-    }
-}
-
-fn theme_install(ctx: eframe::egui::Context) {
-    kebi_ui::theme::install(&ctx);
 }
 
 fn init_tracing(paths: &AppPaths) {

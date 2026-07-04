@@ -1,10 +1,12 @@
 //! UI module. Made by KebiLab
 
-pub mod overlay;
-pub mod settings;
-pub mod theme;
-pub mod hotkeys;
+pub mod app;
+pub mod settings_view;
 pub mod icons;
+pub mod theme;
+pub mod i18n;
+pub mod hotkeys;
 
-pub use overlay::OverlayApp;
-pub use settings::SettingsApp;
+pub use app::{MainApp, Page, HistoryEntry, Status};
+pub use theme::{Theme, Palette};
+pub use i18n::Lang;
