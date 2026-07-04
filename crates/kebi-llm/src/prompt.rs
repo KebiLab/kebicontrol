@@ -1,12 +1,10 @@
 //! System prompts for LLM command parsing. Made by KebiLab
 
-use crate::i18n::Lang;
+// Lang is selected from kebi-core; for now default to Russian
+fn lang() -> &'static str { "ru" }
 
-pub fn parse_system_prompt(lang: Lang) -> String {
-    let lang_str = match lang {
-        Lang::Ru => "Russian",
-        Lang::En => "English",
-    };
+pub fn parse_system_prompt() -> String {
+    let lang_str = lang();
     format!(
 "You are KebiControl, a Windows voice assistant. The user speaks in {lang_str}.\n\
 Convert the user's command into a JSON object with the following schema:\n\

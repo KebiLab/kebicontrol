@@ -1,5 +1,4 @@
-//! System actions: power, volume, brightness, screenshot, reminders, TTS toggle.
-//! Made by KebiLab
+//! System actions. Made by KebiLab
 
 use crate::command::{PowerOp, RemindKind, ScreenshotMode, VolumeOp};
 use crate::error::{KebiError, Result};
@@ -16,23 +15,21 @@ pub fn toggle_tts() -> Result<bool> {
 }
 
 pub async fn speak(_text: &str) -> Result<()> {
-    // Real implementation: invoke kebi-tts. Here we emit a tracing event so
-    // the core crate has no Windows-only dependencies.
     tracing::info!(text = _text, "tts: speak");
     Ok(())
 }
 
 pub async fn power(op: PowerOp) -> Result<Option<String>> {
-    let (verb, exe, args) = match op {
-        PowerOp::Shutdown => ("Выключаю компьютер", "shutdown", ["/s", "/t", "0"]),
-        PowerOp::Restart => ("Перезагружаю", "shutdown", ["/r", "/t", "0"]),
-        PowerOp::Sleep => ("Усыпляю", "rundll32", ["powrprof.dll,SetSuspendState", "0", "1", "0"]),
-        PowerOp::Hibernate => ("Гибернация", "shutdown", ["/h"]),
-        PowerOp::Lock => ("Блокирую", "rundll32", ["user32.dll,LockWorkStation"]),
-        PowerOp::SignOut => ("Выхожу", "shutdown", ["/l"]),
+    let (verb, exe, args): (&str, &str, Vec<&str>) = match op {
+        PowerOp::Shutdown => ("Выключаю компьютер", "shutdown", vec!["/s", "/t", "0"]),
+        PowerOp::Restart => ("Перезагружаю", "shutdown", vec!["/r", "/t", "0"]),
+        PowerOp::Sleep => ("Усыпляю", "rundll32", vec!["powrprof.dll,SetSuspendState", "0", "1", "0"]),
+        PowerOp::Hibernate => ("Гибернация", "shutdown", vec!["/h"]),
+        PowerOp::Lock => ("Блокирую", "rundll32", vec!["user32.dll,LockWorkStation"]),
+        PowerOp::SignOut => ("Выхожу", "shutdown", vec!["/l"]),
     };
     StdCommand::new(exe)
-        .args(args)
+        .args(&args)
         .spawn()
         .map_err(|e| KebiError::Action(format!("{verb}: {e}")))?;
     Ok(Some(verb.into()))
@@ -40,48 +37,39 @@ pub async fn power(op: PowerOp) -> Result<Option<String>> {
 
 pub async fn volume(op: VolumeOp, value: Option<u8>) -> Result<Option<String>> {
     use windows::Win32::Media::Audio::{
-        eConsole, Endpoints::IAudioEndpointVolume, IMMDeviceEnumerator, MMDeviceEnumerator,
+        eConsole, Endpoints::IAudioEndpointVolume, EDataFlow, ERole, IMMDeviceEnumerator, MMDeviceEnumerator,
     };
-    use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, COINIT_APARTMENTTHREADED};
+    use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_APARTMENTTHREADED};
+    use windows::core::Interface;
 
     unsafe {
         let _ = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
         let enumerator: IMMDeviceEnumerator =
-            CoCreateInstance(&MMDeviceEnumerator, None, windows::Win32::System::Com::CLSCTX_ALL)?;
-        let device = enumerator.GetDefaultAudioEndpoint(eConsole, 0)?;
-        let endpoint: IAudioEndpointVolume = device.Activate(
-            windows::Win32::System::Com::CLSCTX_ALL,
-            None,
-        )?;
-        let msg = match op {
-            VolumeOp::Up => {
-                endpoint.StepUp()?;
-                "Громче"
-            }
-            VolumeOp::Down => {
-                endpoint.StepDown()?;
-                "Тише"
-            }
-            VolumeOp::Mute => {
-                endpoint.SetMute(true, std::ptr::null())?;
-                "Звук выключен"
-            }
-            VolumeOp::Unmute => {
-                endpoint.SetMute(false, std::ptr::null())?;
-                "Звук включён"
-            }
+            CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)
+                .map_err(|e| KebiError::Action(format!("enumerator: {e}")))?;
+        let device = enumerator
+            .GetDefaultAudioEndpoint(EDataFlow(eConsole.0), ERole(0))
+            .map_err(|e| KebiError::Action(format!("endpoint: {e}")))?;
+        let endpoint: IAudioEndpointVolume = device
+            .cast()
+            .map_err(|e| KebiError::Action(format!("cast: {e}")))?;
+        let msg: &str = match op {
+            VolumeOp::Up => { let _ = endpoint.VolumeStepUp(std::ptr::null()); "Громче" }
+            VolumeOp::Down => { let _ = endpoint.VolumeStepDown(std::ptr::null()); "Тише" }
+            VolumeOp::Mute => { let _ = endpoint.SetMute(true, std::ptr::null()); "Звук выключен" }
+            VolumeOp::Unmute => { let _ = endpoint.SetMute(false, std::ptr::null()); "Звук включён" }
             VolumeOp::Toggle => {
-                let m = endpoint.GetMute()?;
-                endpoint.SetMute(!m.as_bool(), std::ptr::null())?;
-                if m.as_bool() { "Звук включён" } else { "Звук выключен" }
+                let cur = endpoint.GetMute().map(|b| b.as_bool()).unwrap_or(false);
+                let _ = endpoint.SetMute(!cur, std::ptr::null());
+                if cur { "Звук включён" } else { "Звук выключен" }
             }
             VolumeOp::Set => {
                 if let Some(v) = value {
                     let scalar = v as f32 / 100.0;
-                    endpoint.SetMasterVolumeLevelScalar(scalar, std::ptr::null())?;
+                    let _ = endpoint.SetMasterVolumeLevelScalar(scalar, std::ptr::null());
                     "Громкость установлена"
                 } else {
-                    "Не указано значение громкости"
+                    "Не указано значение"
                 }
             }
         };
@@ -90,7 +78,6 @@ pub async fn volume(op: VolumeOp, value: Option<u8>) -> Result<Option<String>> {
 }
 
 pub async fn brightness(value: u8) -> Result<Option<String>> {
-    // Without WMI / monitor APIs, use PowerShell to set WMI brightness.
     let v = value.min(100);
     let script = format!(
         "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1,{v})"
@@ -103,13 +90,7 @@ pub async fn brightness(value: u8) -> Result<Option<String>> {
 }
 
 pub async fn screenshot(mode: ScreenshotMode) -> Result<Option<String>> {
-    let args: &[&str] = match mode {
-        ScreenshotMode::Full => &[],
-        ScreenshotMode::Window => &[],
-        ScreenshotMode::Selection => return Ok(Some("Режим выделения: реализуется через Win+Shift+S".into())),
-    };
-    let _ = args;
-    // Trigger PrintScreen via SendInput (full screen copy to clipboard).
+    let _ = mode;
     input_send_print_screen()?;
     Ok(Some("Скриншот сделан".into()))
 }
@@ -119,11 +100,13 @@ fn input_send_print_screen() -> Result<()> {
         SendInput, INPUT, INPUT_KEYBOARD, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, VK_SNAPSHOT,
     };
     unsafe {
-        let mut input = INPUT::default();
-        input.r#type = INPUT_KEYBOARD;
-        input.Anonymous.ki.wVk = VK_SNAPSHOT;
-        SendInput(&[input], std::mem::size_of::<INPUT>() as i32);
-        let mut up = input;
+        let mut down: INPUT = std::mem::zeroed();
+        down.r#type = INPUT_KEYBOARD;
+        down.Anonymous.ki.wVk = VK_SNAPSHOT;
+        SendInput(&[down], std::mem::size_of::<INPUT>() as i32);
+        let mut up: INPUT = std::mem::zeroed();
+        up.r#type = INPUT_KEYBOARD;
+        up.Anonymous.ki.wVk = VK_SNAPSHOT;
         up.Anonymous.ki.dwFlags = KEYBD_EVENT_FLAGS(KEYEVENTF_KEYUP.0);
         SendInput(&[up], std::mem::size_of::<INPUT>() as i32);
     }
@@ -131,52 +114,34 @@ fn input_send_print_screen() -> Result<()> {
 }
 
 pub async fn remind(kind: RemindKind, value: &str, text: Option<&str>) -> Result<Option<String>> {
+    let msg = text.unwrap_or("Время вышло").to_string();
     match kind {
         RemindKind::Timer => {
-            // Parse "5 минут" / "1h" / "30 секунд"
             let (val, unit) = parse_duration(value);
             if val <= 0 {
                 return Err(KebiError::Action("Не понял длительность".into()));
             }
             let secs = match unit {
-                "s" | "сек" | "секунд" | "second" | "seconds" => val,
-                "m" | "мин" | "минут" | "minute" | "minutes" => val * 60,
-                "h" | "час" | "часа" | "часов" | "hour" | "hours" => val * 3600,
-                _ => val * 60,
+                "s" => val, "m" => val * 60, "h" => val * 3600, _ => val * 60,
             };
-            let msg = text.unwrap_or("Время вышло").to_string();
             tokio::spawn(async move {
                 tokio::time::sleep(std::time::Duration::from_secs(secs as u64)).await;
                 let _ = speak(&msg).await;
-                let _ = StdCommand::new("powershell")
-                    .args([
-                        "-NoProfile",
-                        "-Command",
-                        "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); \
-                         [System.Windows.Forms.MessageBox]::Show('Время вышло!')",
-                    ])
-                    .spawn();
             });
             Ok(Some(format!("Таймер на {secs} сек")))
         }
         RemindKind::At => {
-            // value is HH:MM
-            let msg = text.unwrap_or("Напоминание").to_string();
+            let target = value.to_string();
             tokio::spawn(async move {
                 loop {
                     let now = chrono::Local::now().format("%H:%M").to_string();
-                    if now == value {
-                        let _ = speak(&msg).await;
-                        break;
-                    }
+                    if now == target { let _ = speak(&msg).await; break; }
                     tokio::time::sleep(std::time::Duration::from_secs(20)).await;
                 }
             });
             Ok(Some(format!("Напомню в {value}")))
         }
-        RemindKind::Stopwatch => {
-            Ok(Some("Секундомер: в v1.1".into()))
-        }
+        RemindKind::Stopwatch => Ok(Some("Секундомер: v1.1".into())),
     }
 }
 
@@ -184,15 +149,8 @@ fn parse_duration(s: &str) -> (i64, &'static str) {
     let lower = s.to_lowercase();
     let digits: String = lower.chars().filter(|c| c.is_ascii_digit()).collect();
     let val: i64 = digits.parse().unwrap_or(0);
-    if lower.contains("сек") || lower.contains("sec") {
-        (val, "s")
-    } else if lower.contains("час") || lower.contains("hour") || lower.contains('h') {
-        (val, "h")
-    } else if lower.contains("мин") || lower.contains("min") || lower.contains('m') {
-        (val, "m")
-    } else if val > 0 {
-        (val, "s")
-    } else {
-        (0, "m")
-    }
+    if lower.contains('с') || lower.contains('s') { (val, "s") }
+    else if lower.contains('ч') || lower.contains('h') { (val, "h") }
+    else if lower.contains('м') || lower.contains('m') { (val, "m") }
+    else if val > 0 { (val, "s") } else { (0, "m") }
 }

@@ -1,0 +1,17 @@
+[build]
+target = "x86_64-pc-windows-gnu"
+
+[target.x86_64-pc-windows-gnu]
+linker = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/gcc.exe"
+ar = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/ar.exe"
+
+[env]
+CC = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/gcc.exe"
+CXX = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/g++.exe"
+AR = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/ar.exe"
+CC_x86_64_pc_windows_gnu = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/gcc.exe"
+CXX_x86_64_pc_windows_gnu = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/g++.exe"
+AR_x86_64_pc_windows_gnu = "D:/Projects/VibeCoding/AiProjects/KebiControl/tools/mingw/bin/ar.exe"
+
+[net]
+git-fetch-with-cli = true

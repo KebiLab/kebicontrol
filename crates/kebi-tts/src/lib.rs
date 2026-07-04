@@ -1,49 +1,51 @@
-//! Text-to-speech via Windows SAPI. Made by KebiLab
+//! TTS stub. Real SAPI integration via COM is in TODO; for now TTS
+//! is logged and (optionally) sent to SAPI via PowerShell.
+//! Made by KebiLab
 
 use anyhow::Result;
-use windows::core::Interface;
-use windows::Win32::System::Com::{
-    CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_APARTMENTTHREADED,
-};
-use windows::Win32::UI::Accessibility::{ISpeechVoice, SpVoice};
+use std::process::Command;
 
-/// Minimal SAPI wrapper.
 pub struct Tts {
-    voice: ISpeechVoice,
+    rate: i32,
+    volume: u8,
 }
 
 impl Tts {
-    pub fn new() -> Result<Self> {
-        unsafe {
-            let _ = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
-            let voice: ISpeechVoice = CoCreateInstance(&SpVoice, None, CLSCTX_ALL)?;
-            Ok(Self { voice })
-        }
+    pub fn new() -> Result<Self> { Ok(Self { rate: 0, volume: 100 }) }
+    pub fn set_rate(&mut self, rate: i32) -> Result<()> { self.rate = rate; Ok(()) }
+    pub fn set_volume(&mut self, vol: u8) -> Result<()> { self.volume = vol.min(100); Ok(()) }
+
+    pub fn speak_async(&self, text: &str) -> Result<()> {
+        let escaped = text.replace('\'', "''");
+        let script = format!(
+            "Add-Type -AssemblyName System.Speech; \
+             $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; \
+             $s.Rate = {rate}; $s.Volume = {vol}; \
+             $s.SpeakAsync('{escaped}') | Out-Null",
+            rate = self.rate,
+            vol = self.volume,
+            escaped = escaped,
+        );
+        let _ = Command::new("powershell")
+            .args(["-NoProfile", "-Command", &script])
+            .spawn();
+        Ok(())
     }
 
     pub fn speak_blocking(&self, text: &str) -> Result<()> {
-        unsafe {
-            let bstr = windows::core::BSTR::from(text);
-            // Use SyncSpeak (SVSFDefault) — flags = 0
-            self.voice.Speak(&bstr, 0.into(), None)?;
-        }
+        let escaped = text.replace('\'', "''");
+        let script = format!(
+            "Add-Type -AssemblyName System.Speech; \
+             $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; \
+             $s.Rate = {rate}; $s.Volume = {vol}; \
+             $s.Speak('{escaped}')",
+            rate = self.rate,
+            vol = self.volume,
+            escaped = escaped,
+        );
+        Command::new("powershell")
+            .args(["-NoProfile", "-Command", &script])
+            .output()?;
         Ok(())
-    }
-
-    pub fn speak_async(&self, text: &str) -> Result<()> {
-        unsafe {
-            let bstr = windows::core::BSTR::from(text);
-            // Async flag = 1
-            self.voice.Speak(&bstr, 1.into(), None)?;
-        }
-        Ok(())
-    }
-
-    pub fn set_rate(&self, rate: i32) -> Result<()> {
-        unsafe { self.voice.Set_Rate(rate)?; Ok(()) }
-    }
-
-    pub fn set_volume(&self, vol: u8) -> Result<()> {
-        unsafe { self.voice.Set_Volume(vol as i32)?; Ok(()) }
     }
 }

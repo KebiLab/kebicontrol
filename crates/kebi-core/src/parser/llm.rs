@@ -81,7 +81,7 @@ pub fn user_context(ctx: &ParserContext, text: &str) -> String {
 }
 
 pub async fn parse_with_llm(
-    ctx: &ParserContext,
+    ctx: &ParserContext<'_>,
     text: &str,
     base_url: &str,
     api_key: &str,
