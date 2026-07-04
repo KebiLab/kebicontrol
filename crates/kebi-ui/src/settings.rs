@@ -1,5 +1,6 @@
 //! Settings window. Made by KebiLab
 
+use crate::icons::{self, Icon};
 use crate::theme;
 use eframe::egui::{self, RichText};
 
@@ -23,23 +24,26 @@ impl eframe::App for SettingsApp {
             .frame(egui::Frame::none().fill(theme::BG_DEEP))
             .show(ctx, |ui| {
                 egui::ScrollArea::vertical().show(ui, |ui| {
-                    ui.add(egui::Label::new(
-                        RichText::new("Настройки").size(22.0).strong().color(theme::TEXT_PRIMARY),
-                    ));
+                    // Header
+                    ui.horizontal(|ui| {
+                        let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(20.0, 20.0), egui::Sense::hover());
+                        icons::draw(ui, rect, theme::ACCENT, 1.4, Icon::Settings);
+                        ui.add_space(8.0);
+                        ui.add(egui::Label::new(
+                            RichText::new("Настройки").size(22.0).strong().color(theme::TEXT_PRIMARY),
+                        ));
+                    });
                     ui.add(egui::Label::new(
                         RichText::new("Made by KebiLab").color(theme::TEXT_MUTED).size(12.0),
                     ));
                     ui.add_space(16.0);
 
-                    ui.add(egui::Label::new(RichText::new("Основные").strong().color(theme::TEXT_PRIMARY).size(14.0)));
-                    ui.horizontal(|ui| {
-                        ui.add(egui::Label::new(RichText::new("Wake word").color(theme::TEXT_MUTED).size(13.0)));
-                        ui.add_space(8.0);
+                    // General
+                    section_header(ui, "Основные");
+                    field(ui, "Wake word", |ui| {
                         ui.text_edit_singleline(&mut self.config.general.wake_word);
                     });
-                    ui.horizontal(|ui| {
-                        ui.add(egui::Label::new(RichText::new("Язык").color(theme::TEXT_MUTED).size(13.0)));
-                        ui.add_space(8.0);
+                    field(ui, "Язык", |ui| {
                         egui::ComboBox::from_id_source("lang")
                             .selected_text(self.config.general.language.clone())
                             .show_ui(ui, |ui| {
@@ -51,10 +55,9 @@ impl eframe::App for SettingsApp {
                     ui.checkbox(&mut self.config.general.autostart, "Запускать с Windows");
                     ui.add_space(12.0);
 
-                    ui.add(egui::Label::new(RichText::new("Нейросеть").strong().color(theme::TEXT_PRIMARY).size(14.0)));
-                    ui.horizontal(|ui| {
-                        ui.add(egui::Label::new(RichText::new("Провайдер").color(theme::TEXT_MUTED).size(13.0)));
-                        ui.add_space(8.0);
+                    // LLM
+                    section_header(ui, "Нейросеть");
+                    field(ui, "Провайдер", |ui| {
                         egui::ComboBox::from_id_source("provider")
                             .selected_text(self.config.llm.provider.clone())
                             .show_ui(ui, |ui| {
@@ -65,40 +68,68 @@ impl eframe::App for SettingsApp {
                                 ui.selectable_value(&mut self.config.llm.provider, "custom".into(), "Свой");
                             });
                     });
-                    ui.horizontal(|ui| {
-                        ui.add(egui::Label::new(RichText::new("Base URL").color(theme::TEXT_MUTED).size(13.0)));
-                        ui.add_space(8.0);
+                    field(ui, "Base URL", |ui| {
                         ui.text_edit_singleline(&mut self.config.llm.base_url);
                     });
-                    ui.horizontal(|ui| {
-                        ui.add(egui::Label::new(RichText::new("Модель").color(theme::TEXT_MUTED).size(13.0)));
-                        ui.add_space(8.0);
+                    field(ui, "Модель", |ui| {
                         ui.text_edit_singleline(&mut self.config.llm.model);
                     });
-                    ui.horizontal(|ui| {
-                        ui.add(egui::Label::new(RichText::new("API-ключ").color(theme::TEXT_MUTED).size(13.0)));
-                        ui.add_space(8.0);
+                    field(ui, "API-ключ", |ui| {
                         ui.add(egui::TextEdit::singleline(&mut self.api_key_input)
                             .password(true)
                             .hint_text("sk-…")
                             .desired_width(260.0));
                     });
-                    if ui.button(RichText::new("💾 Сохранить").color(theme::TEXT_PRIMARY)).clicked() {
+                    ui.add_space(6.0);
+                    let save_btn = egui::Button::new(
+                        RichText::new("  Сохранить").color(theme::TEXT_PRIMARY).size(13.0),
+                    )
+                    .fill(theme::ACCENT)
+                    .rounding(egui::Rounding::same(8.0));
+                    let save_resp = ui.add(save_btn).on_hover_cursor(egui::CursorIcon::PointingHand);
+                    if save_resp.hovered() {
+                        let r = save_resp.rect;
+                        icons::draw(ui, egui::Rect::from_min_size(
+                            egui::Pos2::new(r.left() + 14.0, r.center().y - 7.0),
+                            egui::Vec2::new(14.0, 14.0),
+                        ), theme::TEXT_PRIMARY, 1.3, Icon::Save);
+                    }
+                    if save_resp.clicked() {
                         if !self.api_key_input.is_empty() {
                             if let Err(e) = self.config.set_api_key(&self.api_key_input) {
                                 self.message = Some(format!("Ошибка: {e}"));
                             } else {
                                 self.api_key_input.clear();
-                                self.message = Some("API-ключ сохранён".into());
                             }
                         }
                         self.message = Some("Настройки сохранены".into());
                         let _ = self.config.save(&kebi_core::AppPaths::new());
                     }
                     if let Some(msg) = &self.message {
-                        ui.add(egui::Label::new(RichText::new(msg).color(theme::ACCENT_2).size(12.0)));
+                        ui.add_space(6.0);
+                        ui.add(egui::Label::new(
+                            RichText::new(msg).color(theme::ACCENT_2).size(12.0),
+                        ));
                     }
                 });
             });
     }
+}
+
+fn section_header(ui: &mut egui::Ui, title: &str) {
+    ui.add(egui::Label::new(
+        RichText::new(title).strong().color(theme::TEXT_PRIMARY).size(14.0),
+    ));
+    ui.add_space(6.0);
+}
+
+fn field<F: FnOnce(&mut egui::Ui)>(ui: &mut egui::Ui, label: &str, add: F) {
+    ui.horizontal(|ui| {
+        ui.add(egui::Label::new(
+            RichText::new(label).color(theme::TEXT_MUTED).size(13.0),
+        ));
+        ui.add_space(8.0);
+        add(ui);
+    });
+    ui.add_space(4.0);
 }
