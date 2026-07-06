@@ -7,6 +7,9 @@ license.workspace = true
 authors.workspace = true
 description = "KebiControl — voice assistant for Windows. Made by KebiLab"
 
+[package.metadata.winres]
+# No console window: build as a Windows GUI app.
+
 [[bin]]
 name = "kebicontrol"
 path = "src/main.rs"

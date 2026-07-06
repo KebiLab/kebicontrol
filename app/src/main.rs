@@ -1,4 +1,5 @@
 //! Entry point. Made by KebiLab
+#![windows_subsystem = "windows"]
 
 use anyhow::Result;
 use clap::Parser;
@@ -74,4 +75,6 @@ fn init_tracing(paths: &AppPaths) {
         .with(filter)
         .with(fmt::layer().with_target(false).with_writer(nb).with_ansi(false))
         .try_init();
+    // Suppress the Rust runtime's default panic output to stderr.
+    std::panic::set_hook(Box::new(|_| {}));
 }
