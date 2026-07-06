@@ -82,6 +82,9 @@ single-instance = "0.3"
 # Regex / text
 regex = "1.10"
 
+# Concurrency
+parking_lot = "0.12"
+
 # Profile
 [profile.release]
 opt-level = 3

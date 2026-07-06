@@ -107,17 +107,23 @@ impl Default for AudioConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SttConfig {
-    pub engine: String,   // "vosk" | "whisper"
+    pub engine: String,           // "vosk" | "whisper"
+    pub whisper_endpoint: String,
+    pub whisper_model: String,
+    pub whisper_language: String,
+    pub api_key_enc: String,      // DPAPI-encrypted
     pub auto_download_model: bool,
-    pub whisper_api: String,
 }
 
 impl Default for SttConfig {
     fn default() -> Self {
         Self {
-            engine: "vosk".into(),
+            engine: "whisper".into(),
+            whisper_endpoint: "https://api.openai.com/v1/audio/transcriptions".into(),
+            whisper_model: "whisper-1".into(),
+            whisper_language: "ru".into(),
+            api_key_enc: String::new(),
             auto_download_model: true,
-            whisper_api: String::new(),
         }
     }
 }
@@ -234,6 +240,18 @@ impl Config {
         } else {
             self.llm.api_key_enc = enc;
         }
+        Ok(())
+    }
+
+    pub fn get_stt_api_key(&self) -> Option<String> {
+        if self.stt.api_key_enc.is_empty() { return None; }
+        secrets::unprotect(&self.stt.api_key_enc).ok()
+    }
+
+    pub fn set_stt_api_key(&mut self, key: &str) -> Result<()> {
+        let enc = secrets::protect(key)
+            .map_err(|e| crate::error::KebiError::Config(e.to_string()))?;
+        self.stt.api_key_enc = enc;
         Ok(())
     }
 }

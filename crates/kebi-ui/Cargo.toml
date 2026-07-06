@@ -16,6 +16,7 @@ kebi-core = { path = "../kebi-core" }
 kebi-llm = { path = "../kebi-llm" }
 kebi-stt = { path = "../kebi-stt" }
 kebi-tts = { path = "../kebi-tts" }
+parking_lot.workspace = true
 
 serde.workspace = true
 serde_json.workspace = true

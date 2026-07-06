@@ -2341,6 +2341,7 @@ dependencies = [
  "kebi-llm",
  "kebi-stt",
  "kebi-tts",
+ "parking_lot",
  "serde",
  "serde_json",
  "thiserror 1.0.69",

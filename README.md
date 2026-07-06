@@ -7,26 +7,29 @@ Voice control for Windows. Made by KebiLab.
 ## How to use
 
 1. Run `KebiControl.exe`.
-2. The main window opens. Click the gear icon (top-right) to open Settings.
+2. Click the gear icon (top-right) to open Settings.
 3. In Settings:
-   - Pick a provider (OpenCode Go, OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, xAI, or your own).
-   - Pick a model.
-   - Paste your API key. Click the eye icon to show/hide. Click **Save and close**.
+   - **Распознавание речи (Whisper)** — paste your OpenAI key (or any Whisper-compatible endpoint) for speech-to-text.
+   - **Нейросеть (LLM)** — pick a provider (OpenCode Go, OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, xAI, or your own), choose a model, paste the API key. Keys are encrypted with Windows DPAPI.
+   - Click **Сохранить**.
 4. Back on the main window:
-   - Type a command in the input and press Enter (or click ▶).
+   - Click the big **Говорить** button and speak. The app will listen, recognize, execute the command and answer with voice.
+   - Or type a command in the input and press Enter.
    - Or click a quick action: Pause, Screenshot, Quieter, Louder.
-   - The status line under the buttons shows the result.
 5. Switch language with the **Русский / English** button.
 6. Switch theme with the **Тёмная / Светлая** button.
 
-Your API key is stored encrypted with Windows DPAPI in
-`%APPDATA%\KebiLab\KebiControl\config.toml`.
+Voice pipeline:
 
-## Voice control
-
-Voice recognition is not wired up in v0.1.0 yet — commands are typed
-into the input field. Microphone + LLM STT and wake-word recognition
-land in the next release.
+```
+microphone (cpal, 16 kHz)
+  -> STT (Whisper HTTP, your key)
+  -> text
+  -> local parser (regex rules) or LLM fallback
+  -> Command
+  -> action executor (Win32 / PowerShell)
+  -> voice reply (SAPI via PowerShell)
+```
 
 ## Build
 

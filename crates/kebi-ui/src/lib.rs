@@ -4,10 +4,12 @@ pub mod app;
 pub mod icons;
 pub mod theme;
 pub mod i18n;
+pub mod voice;
 
 pub use app::MainApp;
 pub use theme::{Theme, Palette};
 pub use i18n::Lang;
+pub use voice::{AudioBuffer, VoiceController, VoiceEvent, VoiceState, VoiceStateCell, VoiceReceiver, VoiceSender};
 
 /// Load the application icon from the bundled .ico file.
 pub fn load_icon() -> Option<eframe::egui::IconData> {
