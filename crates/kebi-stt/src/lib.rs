@@ -1,9 +1,7 @@
 //! Speech-to-text. Made by KebiLab
 
+pub mod wake_word;
 pub mod whisper_api;
-
-#[cfg(feature = "vosk")]
-pub mod vosk_engine;
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -18,6 +16,5 @@ pub trait SttEngine: Send + Sync {
     async fn reset(&mut self) -> Result<()>;
 }
 
-#[cfg(feature = "vosk")]
-pub use vosk_engine::VoskEngine;
+pub use wake_word::WakeWordDetector;
 pub use whisper_api::WhisperApi;

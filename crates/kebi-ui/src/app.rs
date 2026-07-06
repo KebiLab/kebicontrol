@@ -116,16 +116,19 @@ impl eframe::App for MainApp {
                 // Big microphone button
                 ui.vertical_centered(|ui| {
                     let listening = matches!(self.voice_state, VoiceState::Listening);
+                    let wake = matches!(self.voice_state, VoiceState::WakeListening);
                     let processing = matches!(self.voice_state, VoiceState::Recognizing | VoiceState::Thinking);
                     let speaking = matches!(self.voice_state, VoiceState::Speaking);
                     let accent_color = if listening { p.danger }
                         else if processing { p.accent }
                         else if speaking { p.success }
+                        else if wake { p.accent }
                         else { p.accent };
-                    let label = if listening { "■  Остановить" }
-                        else if processing { "…  Обрабатываю" }
-                        else if speaking { "♪  Говорю" }
-                        else { "▶  Говорить" };
+                    let label = if listening { "■  Остановить".to_string() }
+                        else if processing { "…  Обрабатываю".to_string() }
+                        else if speaking { "♪  Говорю".to_string() }
+                        else if wake { ui_i18n::t(lang, "home.wake_listening") }
+                        else { "▶  Говорить".to_string() };
                     let r = ui.add(
                         egui::Button::new(
                             RichText::new(format!("  {}  ", label)).color(p.accent_text).size(16.0),
@@ -215,6 +218,7 @@ impl eframe::App for MainApp {
                 ui.vertical_centered(|ui| {
                     let state_color = match self.voice_state {
                         VoiceState::Listening => p.danger,
+                        VoiceState::WakeListening => p.success,
                         VoiceState::Recognizing | VoiceState::Thinking => p.accent,
                         VoiceState::Speaking => p.success,
                         VoiceState::Error => p.danger,
@@ -234,7 +238,7 @@ impl eframe::App for MainApp {
             });
 
         // Trigger repaint while listening so the UI feels live.
-        if matches!(self.voice_state, VoiceState::Listening | VoiceState::Recognizing | VoiceState::Thinking | VoiceState::Speaking) {
+        if matches!(self.voice_state, VoiceState::Listening | VoiceState::WakeListening | VoiceState::Recognizing | VoiceState::Thinking | VoiceState::Speaking) {
             ctx.request_repaint_after(std::time::Duration::from_millis(80));
         }
     }
@@ -357,6 +361,25 @@ fn render_settings_modal(ctx: &egui::Context, app: &mut MainApp, p: &Palette, la
                         app.show_stt_api_key = !app.show_stt_api_key;
                     }
                 });
+
+                ui.add_space(18.0);
+
+                // Wake word
+                ui.add(egui::Label::new(RichText::new(ui_i18n::t(lang, "settings.wake_word_section")).color(p.text).size(14.0).strong()));
+                ui.add_space(8.0);
+                section_label(ui, p, ui_i18n::t(lang, "settings.wake_word_toggle"));
+                ui.add(egui::Checkbox::new(&mut app.config.general.wake_word_enabled, ""));
+                ui.add_space(6.0);
+                section_label(ui, p, ui_i18n::t(lang, "settings.wake_word_phrase"));
+                ui.add(egui::TextEdit::singleline(&mut app.config.general.wake_word)
+                    .hint_text("кеби").desired_width(500.0));
+                if app.config.general.wake_word_enabled && app.config.get_stt_api_key().is_none() {
+                    ui.add_space(4.0);
+                    ui.add(egui::Label::new(
+                        RichText::new(ui_i18n::t(lang, "settings.wake_word_hint"))
+                            .color(p.danger).size(11.0),
+                    ));
+                }
 
                 ui.add_space(20.0);
 

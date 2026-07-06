@@ -16,8 +16,9 @@ Voice control for Windows. Made by KebiLab.
    - Click the big **Говорить** button and speak. The app will listen, recognize, execute the command and answer with voice.
    - Or type a command in the input and press Enter.
    - Or click a quick action: Pause, Screenshot, Quieter, Louder.
-5. Switch language with the **Русский / English** button.
-6. Switch theme with the **Тёмная / Светлая** button.
+5. **Wake word (optional).** In Settings, tick "Пробуждение по голосу" and set the wake phrase (default: `кеби`). The mic will then stay on, and when the app hears the phrase it will start a full STT cycle automatically. Detection uses short probes against the same Whisper endpoint you configured for STT.
+6. Switch language with the **Русский / English** button.
+7. Switch theme with the **Тёмная / Светлая** button.
 
 Voice pipeline:
 

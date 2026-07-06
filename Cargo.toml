@@ -73,9 +73,6 @@ enigo = "0.2"
 
 # Windows-specific — see per-crate Cargo.toml
 
-# Vosk STT (FFI) - optional, enable with --features vosk
-vosk = "0.3"
-
 # Single instance
 single-instance = "0.3"
 

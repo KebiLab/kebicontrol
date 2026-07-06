@@ -14,6 +14,7 @@ pub enum VoiceEvent {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VoiceState {
     Idle,
+    WakeListening,
     Listening,
     Recognizing,
     Thinking,

@@ -33,6 +33,11 @@ fn ru() -> &'static HashMap<&'static str, &'static str> {
         m.insert("settings.field.apikey", "API-ключ");
         m.insert("settings.save", "Сохранить");
         m.insert("settings.cancel", "Отмена");
+        m.insert("home.wake_listening", "⏳  Слушаю…");
+        m.insert("settings.wake_word_section", "Пробуждение по голосу (Wake Word)");
+        m.insert("settings.wake_word_toggle", "Включить");
+        m.insert("settings.wake_word_phrase", "Фраза для пробуждения");
+        m.insert("settings.wake_word_hint", "Для работы нужен API-ключ распознавания речи");
         m.insert("theme.dark", "Тёмная");
         m.insert("theme.light", "Светлая");
         m
@@ -51,6 +56,11 @@ fn en() -> &'static HashMap<&'static str, &'static str> {
         m.insert("settings.field.apikey", "API key");
         m.insert("settings.save", "Save");
         m.insert("settings.cancel", "Cancel");
+        m.insert("home.wake_listening", "⏳  Listening…");
+        m.insert("settings.wake_word_section", "Wake Word Detection");
+        m.insert("settings.wake_word_toggle", "Enable");
+        m.insert("settings.wake_word_phrase", "Wake phrase");
+        m.insert("settings.wake_word_hint", "Speech-to-text API key is required");
         m.insert("theme.dark", "Dark");
         m.insert("theme.light", "Light");
         m

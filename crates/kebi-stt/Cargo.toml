@@ -5,10 +5,9 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
-description = "Speech-to-text engines (Vosk local + Whisper API). Made by KebiLab"
+description = "Speech-to-text (Whisper API + wake word). Made by KebiLab"
 
 [dependencies]
-vosk = { version = "0.3", optional = true }
 anyhow.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
@@ -22,7 +21,3 @@ directories.workspace = true
 dirs.workspace = true
 futures.workspace = true
 windows = { version = "0.61", features = ["Win32_Foundation"] }
-
-[features]
-default = []
-vosk = ["dep:vosk"]

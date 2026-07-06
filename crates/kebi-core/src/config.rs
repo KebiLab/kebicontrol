@@ -42,6 +42,7 @@ impl Default for Config {
 pub struct GeneralConfig {
     pub language: String,
     pub wake_word: String,
+    pub wake_word_enabled: bool,
     pub autostart: bool,
     pub tts_enabled: bool,
     pub log_level: String,
@@ -53,6 +54,7 @@ impl Default for GeneralConfig {
         Self {
             language: "ru".into(),
             wake_word: "кеби".into(),
+            wake_word_enabled: false,
             autostart: false,
             tts_enabled: true,
             log_level: "info".into(),
@@ -107,7 +109,7 @@ impl Default for AudioConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SttConfig {
-    pub engine: String,           // "vosk" | "whisper"
+    pub engine: String,           // "whisper" (only whisper is used in current build)
     pub whisper_endpoint: String,
     pub whisper_model: String,
     pub whisper_language: String,
